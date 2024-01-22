@@ -3,9 +3,9 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 
-const User = require("../models/user");
+const User = require("../models/user.js");
 
-router.post("/signup", (req, res, next) => {
+router.post("/", (req, res, next) => {
     bcrypt.hash(req.body.password, 10, (err, hash) => {
         if (err){
             return res.status(500).json({
@@ -19,7 +19,7 @@ router.post("/signup", (req, res, next) => {
                 username: req.body.username,
                 password: hash,
                 email: req.body.email,
-                phone_number: req.body.email,
+                phone_number: req.body.phone_number,
                 school: req.body.school
             });
             user.save()
@@ -36,7 +36,7 @@ router.post("/signup", (req, res, next) => {
                         username: result.username,
                         password: hash,
                         email: result.email,
-                        phone_number: result.email,
+                        phone_number: result.phone_number,
                         school: result.school
                     }
                 });
@@ -51,3 +51,5 @@ router.post("/signup", (req, res, next) => {
     
     })
 })
+
+module.exports = router;

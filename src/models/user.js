@@ -1,38 +1,38 @@
 const mongoose = require('mongoose');
 
-const userSchema = mongoose.userSchema({
+const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     first_name: {
         type: String,
         required: true
     },
     last_name: {
-        Type: String,
+        type: String,
         required: true
     },
     email: {
-        Type: String,
+        type: String,
         required: true
     },
     username: {
-        Type: String,
+        type: String,
         required: true
     },
     password: {
-        Type: String,
+        type: String,
         required: true
     },
     phone_number: {
-        Type: Number,
-        min: 10,
-        max: 10,
+        type: Number,
+        min: 0,
+        max: 9999999999,
         required: true
     },
     school: {
-        Type: String,
+        type: String,
         required: false
     }
 
 });
 
-module.exports = mongoose.model('users', productSchema);
+module.exports = mongoose.model('users', userSchema);
