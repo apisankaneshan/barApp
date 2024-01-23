@@ -13,4 +13,10 @@ router.get('/', userController.getAllUsers);
 //Get user
 router.get('/:userId', userController.getUser);
 
+//Delete user
+router.delete('/:userId', userController.deleteUser);
+
+//Login User
+router.post('/login', userController.loginUser);
+
 module.exports = router;

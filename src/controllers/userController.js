@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const User = require("../models/user");
+const { ConnectionPoolClosedEvent } = require("mongodb");
 
 const createNewUser = (req, res, next) => {
     bcrypt.hash(req.body.password, 10, (err, hash) => {
@@ -76,7 +78,7 @@ const createNewUser = (req, res, next) => {
 
 const getAllUsers = (req, res, next) => {
     User.find()
-    .select('_id first_name last_name username school')
+    .select('_id first_name last_name username school email')
     .exec()
     .then(docs => {
         const response = {
@@ -88,6 +90,7 @@ const getAllUsers = (req, res, next) => {
                     last_name: doc.last_name,
                     username: doc.username,
                     school: doc.school,
+                    email: doc.email,
                     request: {
                         type: 'GET',
                         url: 'http://localhost:3000/users/' + doc._id
@@ -130,8 +133,85 @@ const getUser = (req, res, next) => {
     });
 }
 
+const deleteUser = (req, res, next) => {
+    const id = req.params.userId;
+    User.findByIdAndDelete(id)
+    .exec()
+    .then(result => {
+        if(result){
+            console.log("User Deleted id: " + id);
+            console.log("result: " + result);
+            res.status(200).json({
+                message: "User Deleted"
+            });
+        }
+        else{
+            console.log("User does not exist")
+            res.status(404).json({
+                message: "User does not exist",
+                id: id
+            });
+        }    
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            error: err
+        });
+    });
+}
+
+const loginUser = (req, res, next) => {
+    User.find({username: req.body.username})
+    .exec()
+    .then(user =>{
+        if(user.length < 1){
+            return res.status(401).json({
+                message: "Authorization Failed."
+            });
+        }
+        bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+            console.log(req.body.password + "\n");
+            console.log(user[0].password + "\n");
+            if(err){
+                return res.status(401).json({
+                    message: "Authorization Failed."
+                });
+            }
+            if(result) {
+                const token = jwt.sign({
+                    email: user[0].email,
+                    userId: user[0]._id
+                }, 
+                process.env.JWT_KEY,
+                {
+                    expiresIn: "1h"
+                });
+                return res.status(200).json({
+                    message: "Authorization Passed.",
+                    token: token
+                });
+            }
+            else{
+                return res.status(401).json({
+                    message: "Authorization Failed."
+                });
+            }
+            console.log("Something wrong with login")
+            return res.status(500).json({
+                message: "Something went wrong!"
+            });
+        });
+    })
+    .catch();
+
+}
+
+
 module.exports = {
     createNewUser,
     getAllUsers,
-    getUser
+    getUser,
+    deleteUser,
+    loginUser
 };

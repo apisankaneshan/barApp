@@ -4,9 +4,9 @@ const morgan = require("morgan");
 const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
 
-const userRoutes = require("./src/routes/userRoutes/users");
+const userRoutes = require("./src/routes/userRoutes/users"); //defines path to user.js file in routes/userRoutes
 
-mongoose.connect("mongodb+srv://ericmuzzo:dirtbIke1%2A@node-rest-shop.wnwjwnx.mongodb.net/");
+mongoose.connect("mongodb+srv://ericmuzzo:" + process.env.MONGO_ATLAS_PW + "@node-rest-shop.wnwjwnx.mongodb.net/");
 mongoose.Promise = global.Promise;
 
 app.use(morgan('dev'));
@@ -23,7 +23,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/users', userRoutes);
+app.use('/users', userRoutes); //defining endpoint of url
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
