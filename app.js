@@ -26,7 +26,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/users', userRoutes); //defining endpoint of url
+app.use('/users', checkAuth.checkAdminAuth, userRoutes); //defining endpoint of url
 app.use('/signup', signupRoutes);
 app.use('/login', loginRoutes);
 
