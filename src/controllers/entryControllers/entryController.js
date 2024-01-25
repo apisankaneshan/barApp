@@ -40,7 +40,8 @@ const createNewUser = (req, res, next) => {
                         password: hash,
                         email: result.email,
                         phone_number: result.phone_number,
-                        school: result.school
+                        school: result.school,
+                        role: result.role
                     }
                 });
             })
