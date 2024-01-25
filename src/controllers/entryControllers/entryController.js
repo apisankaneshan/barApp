@@ -21,7 +21,8 @@ const createNewUser = (req, res, next) => {
                 password: hash,
                 email: req.body.email,
                 phone_number: req.body.phone_number,
-                school: req.body.school
+                school: req.body.school,
+                role: req.body.role
             });
             user.save()
             .then(result => {
