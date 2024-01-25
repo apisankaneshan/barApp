@@ -38,6 +38,12 @@ const userSchema = mongoose.Schema({
     school: {
         type: String,
         required: false
+    },
+    role: {
+        type: String,
+        enum: ["BASIC", "MANAGER", "ADMIN"],
+        default: "BASIC",
+        required: true
     }
 
 });
