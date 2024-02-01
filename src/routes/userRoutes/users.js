@@ -3,10 +3,9 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 const userController = require("../../controllers/userControllers/userController");
+const followsRoute = require('./follows');
 
-/*Create user
-router.post('/signup', userController.createNewUser);
-*/
+router.use('/follows', followsRoute);
 
 //Get all users
 router.get('/', userController.getAllUsers);

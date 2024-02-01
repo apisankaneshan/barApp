@@ -26,10 +26,10 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/users', checkAuth.checkAdminAuth, userRoutes); //defining endpoint of url
+//app.use('/users', checkAuth.checkAdminAuth, userRoutes); //defining endpoint of url
+app.use('/users', userRoutes);
 app.use('/signup', signupRoutes);
 app.use('/login', loginRoutes);
-
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
