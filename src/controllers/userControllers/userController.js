@@ -93,10 +93,71 @@ const deleteUser = (req, res, next) => {
     });
 }
 
+const updateUserInfo = (req, res, next) => {
+    const username = req.params.username;
+    const updatedProperties = req.body;
+    console.log(updatedProperties);
+    User.findOneAndUpdate(
+        {username: `${username}`}, 
+        {$set: updatedProperties}
+    )
+    .exec()
+    .then(result => {
+        console.log(`User ${username} updated successfully`);
+        console.log("Result: " + result);
+        res.status(201).json({
+            returnedResult: result
+        });
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            error: err
+        });
+    });
+}
 
+const updateFollowRelation = (req, res, next) => {
+    const userId = req.params.userId;
+    const beingFollowedId = req.body.followRelationId;
+    console.log(req.body);
+    User.findByIdAndUpdate(userId, {$push: req.body})
+    .exec()
+    .then(result => {
+        console.log(`User ${userId} updated successfully`);
+        console.log("Result: " + result);
+        res.status(201).json({
+            returnedResult: result
+        });
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).json({
+            error: err
+        });
+    });
+
+    User.findByIdAndUpdate(beingFollowedId, {$push: {followers: userId}})
+    .exec()
+    .then(result => {
+        console.log(`User ${userId} updated successfully`);
+        console.log("Result: " + result);
+        // res.status(201).json({
+        //     returnedResult: result
+        // });
+    })
+    .catch(err => {
+        console.log(err);
+        // res.status(500).json({
+        //     error: err
+        // });
+    });
+}
 
 module.exports = {
     getAllUsers,
     getUser,
-    deleteUser
+    deleteUser,
+    updateUserInfo,
+    updateFollowRelation
 };

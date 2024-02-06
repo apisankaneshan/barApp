@@ -44,8 +44,9 @@ const userSchema = mongoose.Schema({
         enum: ["BASIC", "MANAGER", "ADMIN"],
         default: "BASIC",
         required: true
-    }
-
+    },
+    followers: [{type: mongoose.Schema.Types.ObjectId, ref: 'FollowRelation'}],
+    following: [{type: mongoose.Schema.Types.ObjectId, ref: 'FollowRelation'}]
 });
 
 module.exports = mongoose.model('users', userSchema);
