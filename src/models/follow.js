@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const followSchema = mongoose.Schema({
     relatedUserId: {
-        type: mongoose.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: 'users',
         required: true,
-        index: true,
+        unique: true,
         validate: {
             validator: async function(userId){
                 const user = await mongoose.model('users').findById(userId);
@@ -16,4 +16,6 @@ const followSchema = mongoose.Schema({
     }
 }, { timestamps: {created_at: "followed_at", updated_at: "updated_at"}});
 
-module.exports.FollowRelation = followSchema;
+module.exports = mongoose.model("FollowRelation", followSchema);
+
+//module.exports.FollowRelation = followSchema;

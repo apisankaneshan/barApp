@@ -10,3 +10,5 @@ router.get('/', followController.getFollowers);
 //Remove a follwer
 router.delete('/', followController.unfollowUser);  //maybe we can use unfollow to perform both 'unfollow'
                                                     //action and remove a follower action
+
+module.exports = router;

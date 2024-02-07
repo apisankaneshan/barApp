@@ -6,12 +6,13 @@ const userController = require("../../controllers/userControllers/userController
 const followersRoute = require("./followers");
 const followingRoute = require("./following");
 
-router.use('/:username/followers', function(req, res, next) {   //replace f'n with controller f'n
+router.use('/:username/followers', (req, res, next) =>{   //replace f'n with controller f'n
     req.username = req.params.username;
     next();
 }, followersRoute);
 
 router.use('/:username/following', function(req, res, next) {   //replace f'n with controller f'n
+    console.log(req.params.username);
     req.username = req.params.username;
     next();
 }, followingRoute);
@@ -20,12 +21,12 @@ router.use('/:username/following', function(req, res, next) {   //replace f'n wi
 router.get('/', userController.getAllUsers);
 
 //Get user
-router.get('/:userId', userController.getUser);
+router.get('/:username', userController.getUser);
 
 //Delete user
-router.delete('/:userId', userController.deleteUser);
+router.delete('/:username', userController.deleteUser);
 
 //Update user info
-router.patch('/:userId', userController.updateUserInfo);
+router.patch('/:username', userController.updateUserInfo);
 
 module.exports = router;

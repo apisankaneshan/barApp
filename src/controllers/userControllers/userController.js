@@ -40,8 +40,8 @@ const getAllUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-    const id = req.params.userId;
-    User.findById(id)
+    const username = req.params.username;
+    User.findOne({username: `${username}`})
     .select('_id first_name last_name username school')
     .exec()
     .then(doc => {
@@ -52,11 +52,11 @@ const getUser = (req, res, next) => {
                 request: {
                     type: 'GET',
                     description: 'Get specific user',
-                    url: 'http://localhost:3000/users/' + id
+                    url: 'http://localhost:3000/users/' + username
                 }
             });
         } else {
-            res.status(404).json({message: "No valid user for given ID"});
+            res.status(404).json({message: "No valid user for given username"});
         }
     })
     .catch(err => {
@@ -66,12 +66,12 @@ const getUser = (req, res, next) => {
 }
 
 const deleteUser = (req, res, next) => {
-    const id = req.params.userId;
-    User.findByIdAndDelete(id)
+    const username = req.params.username;
+    User.findOneAndDelete({username: username})
     .exec()
     .then(result => {
         if(result){
-            console.log("User Deleted id: " + id);
+            console.log("User Deleted username: " + username);
             console.log("result: " + result);
             res.status(200).json({
                 message: "User Deleted"
@@ -117,47 +117,11 @@ const updateUserInfo = (req, res, next) => {
     });
 }
 
-const updateFollowRelation = (req, res, next) => {
-    const userId = req.params.userId;
-    const beingFollowedId = req.body.followRelationId;
-    console.log(req.body);
-    User.findByIdAndUpdate(userId, {$push: req.body})
-    .exec()
-    .then(result => {
-        console.log(`User ${userId} updated successfully`);
-        console.log("Result: " + result);
-        res.status(201).json({
-            returnedResult: result
-        });
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            error: err
-        });
-    });
 
-    User.findByIdAndUpdate(beingFollowedId, {$push: {followers: userId}})
-    .exec()
-    .then(result => {
-        console.log(`User ${userId} updated successfully`);
-        console.log("Result: " + result);
-        // res.status(201).json({
-        //     returnedResult: result
-        // });
-    })
-    .catch(err => {
-        console.log(err);
-        // res.status(500).json({
-        //     error: err
-        // });
-    });
-}
 
 module.exports = {
     getAllUsers,
     getUser,
     deleteUser,
     updateUserInfo,
-    updateFollowRelation
 };

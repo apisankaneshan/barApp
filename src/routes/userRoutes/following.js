@@ -8,7 +8,9 @@ const followController = require("../../controllers/userControllers/followContro
 router.get('/', followController.getFollowing);
 
 //Follow a user
-router.post('/', followController.followUser);
+router.patch('/', followController.followUser);
 
 //Unfollow a user
 router.delete('/', followController.unfollowUser);
+
+module.exports = router;
