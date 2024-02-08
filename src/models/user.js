@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Follow = require("../models/follow");
 
 const userSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
@@ -46,9 +45,32 @@ const userSchema = mongoose.Schema({
         default: "BASIC",
         required: true
     },
-    followers: [Follow.schema],
-    following: [Follow.schema]
-});
+    followers: [{
+        relatedUserId: {
+            type: mongoose.ObjectId,
+            required: true,
+            ref: 'users',
+            unique: true
+        },
+        followed_at: {
+            type: Date,
+            default: new Date()
+        }
+    }],
+    following: [{
+        relatedUserId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'users',
+            unique: true,
+            index: true
+        },
+        followed_at: {
+            type: Date,
+            default: new Date()
+        }
+    }]
+}, {_id: false});
 
 
 module.exports = mongoose.model('users', userSchema);

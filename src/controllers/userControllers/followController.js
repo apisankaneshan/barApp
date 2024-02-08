@@ -1,5 +1,4 @@
 const User = require("../../models/user");
-const Follow = require("../../models/follow");
 const globalFunctions = require("../globalFunctions");
 
 // const followUser = async (req, res, next) => {
@@ -39,31 +38,26 @@ const followUser = async (req, res) => {
     const sourceUsername = req.username;
     const targetUsername = req.body.targetUsername;
     const targetUserId = await globalFunctions.usernameToUserId(targetUsername);
-    console.log(targetUserId);
-    const targetUserIdString = targetUserId.toString();
 
     if (targetUserId) {
         //updating the 'follwing' of the source user
 
         await User.findOneAndUpdate(
-            { username: `${sourceUsername}` },
-            { $push: { following: {
-                relatedUserId: targetUserId }
-            } }
-        )
-        .exec()
+            { username: `${sourceUsername}`},
+            {$addToSet: {following: {relatedUserId: targetUserId}}})
         .then(result => {
-                console.log(`User ${sourceUsername} followed ${targetUsername} successfully`);
+
+            console.log(`User ${sourceUsername} followed ${targetUsername} successfully`);
                 res.status(201).json({
                     returnedResult: result
                 });
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).json({
-                    error: err
-                });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
             });
+        });
     }
     else{
         console.log("something went wrong");
