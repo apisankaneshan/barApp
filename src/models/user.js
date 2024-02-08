@@ -49,8 +49,7 @@ const userSchema = mongoose.Schema({
         relatedUserId: {
             type: mongoose.ObjectId,
             required: true,
-            ref: 'users',
-            unique: true
+            ref: 'users'
         },
         followed_at: {
             type: Date,
@@ -61,9 +60,7 @@ const userSchema = mongoose.Schema({
         relatedUserId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'users',
-            unique: true,
-            index: true
+            ref: 'users'
         },
         followed_at: {
             type: Date,

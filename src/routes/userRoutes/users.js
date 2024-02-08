@@ -12,7 +12,6 @@ router.use('/:username/followers', (req, res, next) =>{   //replace f'n with con
 }, followersRoute);
 
 router.use('/:username/following', function(req, res, next) {   //replace f'n with controller f'n
-    console.log(req.params.username);
     req.username = req.params.username;
     next();
 }, followingRoute);
