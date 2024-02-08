@@ -34,7 +34,7 @@ const followUser = async (req, res) => {
     //accessible by req.username
     //should update follwers array of {username} with username passed in body
     //of request, then do the same for the opposite
-
+    
     const sourceUsername = req.username;
     const targetUsername = req.body.targetUsername;
 
@@ -97,6 +97,62 @@ const unfollowUser = async (req, res) => {
     //accessible by req.params.username
     //should update follwers array of {username} with username passed in body
     //of request, then do the same for the opposite
+
+    const sourceUsername = req.username;
+    const targetUsername = req.body.targetUsername;
+
+    const sourceUserId = await globalFunctions.usernameToUserId(sourceUsername);
+    const targetUserId = await globalFunctions.usernameToUserId(targetUsername);
+
+    if (targetUserId) {
+        //updating the 'follwing' of the source user
+        await User.findOneAndUpdate(
+            { username: `${sourceUsername}` },
+            { $pull: { following: { relatedUserId: targetUserId } } },
+            { new: true})
+            .then(async sourceResult => {
+                sourceResult.self = `http://localhost:3000/users/${sourceUsername}`;
+                await User.findOneAndUpdate(
+                    { username: `${targetUsername}` },
+                    { $pull: { followers: { relatedUserId: sourceUserId } } },
+                    { new: true})
+                    .then(targetResult => {
+                        targetResult.self = `http://localhost:3000/users/${targetUsername}`
+                        console.log(`${sourceUsername} unfollowed ${targetUsername} successfully`);
+                        res.status(201).json({
+                            success: true,
+                            message: `${sourceUsername} unfollowed ${targetUsername}`,
+                            sourceUser: sourceResult,
+                            targetUser: targetResult
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({
+                            error: err
+                        });
+                    });
+            })
+            .catch(err => {
+                console.log(`error updating ${sourceUsername}'s following array`);
+                console.log(err);
+                res.status(500).json({
+                    error: err
+                });
+            });
+    }
+    else {
+        console.log(`username ${targetUsername} not found in db`);
+        res.status(404).json({
+            success: false,
+            message: `target username ${targetUsername} not found in db`,
+            sourceUser: {
+                username: sourceUsername,
+                objectId: sourceUserId,
+                self: `http://localhost:3000/users/${sourceUsername}`
+            }
+        });
+    }
 }
 
 const getFollowing = async (req, res) => {
