@@ -46,10 +46,18 @@ const userSchema = mongoose.Schema({
         required: true
     },
     followers: [{
-        relatedUserId: {
-            type: mongoose.ObjectId,
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'users'
+            ref: 'users',
+            unique: true
+        },
+        username: {
+            type: String,
+            required: true
+        },
+        self:{
+            type: String
         },
         followed_at: {
             type: Date,
@@ -57,10 +65,18 @@ const userSchema = mongoose.Schema({
         }
     }],
     following: [{
-        relatedUserId: {
+        userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'users'
+            ref: 'users',
+            unique: true
+        },
+        username: {
+            type: String,
+            required: true
+        },
+        self:{
+            type: String
         },
         followed_at: {
             type: Date,

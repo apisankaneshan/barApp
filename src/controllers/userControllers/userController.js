@@ -99,7 +99,8 @@ const updateUserInfo = (req, res, next) => {
     console.log(updatedProperties);
     User.findOneAndUpdate(
         {username: `${username}`}, 
-        {$set: updatedProperties}
+        {$set: updatedProperties},
+        {new: true}
     )
     .exec()
     .then(result => {

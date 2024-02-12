@@ -1,34 +1,6 @@
 const User = require("../../models/user");
 const globalFunctions = require("../globalFunctions");
 
-// const followUser = async (req, res, next) => {
-//     console.log(req.params);
-//     const sourceUsername = req.username;
-//     const targetUsername = req.body.targetUsername;
-
-//     try {
-//         const targetUserId = await globalFunctions.usernameToUserId(targetUsername);
-//         if (targetUserId) {
-//             // Update the 'following' of the source user
-//             await User.findOneAndUpdate(
-//                 { username: sourceUsername },
-//                 { $push: { following: targetUserId } }
-//             );
-//             console.log(`User ${sourceUsername} is following user ${targetUsername} successfully`);
-//             res.status(201).json({ message: `User ${sourceUsername} is following user ${targetUsername} successfully` });
-//         } else {
-//             console.log(`User ${targetUsername} not found`);
-//             res.status(404).json({ message: `User ${targetUsername} not found` });
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Internal Server Error' });
-//     }
-// };
-
-
-
-
 const followUser = async (req, res) => {
     //response should return list of updated followers for user: username
     //accessible by req.username
@@ -42,25 +14,40 @@ const followUser = async (req, res) => {
     const targetUserId = await globalFunctions.usernameToUserId(targetUsername);
 
     if (targetUserId) {
-        //updating the 'follwing' of the source user
+        //updating the 'following' of the source user
+
         await User.findOneAndUpdate(
             { username: `${sourceUsername}` },
-            { $addToSet: { following: { relatedUserId: targetUserId } } },
+            { $addToSet: { following: {
+                userId: targetUserId,
+                username: targetUsername,
+                self: `http://localhost:3000/users/${targetUsername}`
+            }} },
             { new: true})
             .then(async sourceResult => {
-                sourceResult.self = `http://localhost:3000/users/${sourceUsername}`;
                 await User.findOneAndUpdate(
                     { username: `${targetUsername}` },
-                    { $addToSet: { followers: { relatedUserId: sourceUserId } } },
+                    { $addToSet: { followers: {
+                        userId: sourceUserId,
+                        username: sourceUsername,
+                        self: `http://localhost:3000/users/${sourceUsername}`
+                    } } },
                     { new: true})
                     .then(targetResult => {
-                        targetResult.self = `http://localhost:3000/users/${targetUsername}`
                         console.log(`${sourceUsername} followed ${targetUsername} successfully`);
                         res.status(201).json({
                             success: true,
                             message: `${sourceUsername} followed ${targetUsername}`,
-                            sourceUser: sourceResult,
-                            targetUser: targetResult
+                            sourceUser: {
+                                _id: sourceResult._id,
+                                username: sourceResult.username,
+                                self: `http://localhost:3000/users/${sourceUsername}`
+                            },
+                            targetUser: {
+                                _id: targetResult._id,
+                                username: targetResult.username,
+                                self: `http://localhost:3000/users/${targetUsername}`
+                            }
                         });
                     })
                     .catch(err => {
@@ -105,25 +92,40 @@ const unfollowUser = async (req, res) => {
     const targetUserId = await globalFunctions.usernameToUserId(targetUsername);
 
     if (targetUserId) {
-        //updating the 'follwing' of the source user
+        //updating the 'following' of the source user
+
         await User.findOneAndUpdate(
             { username: `${sourceUsername}` },
-            { $pull: { following: { relatedUserId: targetUserId } } },
+            { $pull: { following: {
+                userId: targetUserId,
+                username: targetUsername,
+                self: `http://localhost:3000/users/${targetUsername}`
+            }} },
             { new: true})
             .then(async sourceResult => {
-                sourceResult.self = `http://localhost:3000/users/${sourceUsername}`;
                 await User.findOneAndUpdate(
                     { username: `${targetUsername}` },
-                    { $pull: { followers: { relatedUserId: sourceUserId } } },
+                    { $pull: { followers: {
+                        userId: sourceUserId,
+                        username: sourceUsername,
+                        self: `http://localhost:3000/users/${sourceUsername}`
+                    } } },
                     { new: true})
                     .then(targetResult => {
-                        targetResult.self = `http://localhost:3000/users/${targetUsername}`
                         console.log(`${sourceUsername} unfollowed ${targetUsername} successfully`);
                         res.status(201).json({
                             success: true,
                             message: `${sourceUsername} unfollowed ${targetUsername}`,
-                            sourceUser: sourceResult,
-                            targetUser: targetResult
+                            sourceUser: {
+                                _id: sourceResult._id,
+                                username: sourceResult.username,
+                                self: `http://localhost:3000/users/${sourceUsername}`
+                            },
+                            targetUser: {
+                                _id: targetResult._id,
+                                username: targetResult.username,
+                                self: `http://localhost:3000/users/${targetUsername}`
+                            }
                         });
                     })
                     .catch(err => {
@@ -157,11 +159,61 @@ const unfollowUser = async (req, res) => {
 
 const getFollowing = async (req, res) => {
     //response should return list of all followings for user: username
-    //accessible by req.params.username
+    //accessible by req.username
+
+    const uname = req.username;
+    User.findOne({ username: `${uname}` })
+    .select('_id username following')
+    .exec()
+    .then(result => {
+        console.log(result);
+        res.status(200).json({
+            message: `${uname}'s following list`,
+            _id: result._id,
+            username: result.username,
+            following: {
+                num_users_followed: result.following.length,
+                following_list: result.following
+            },
+            self: `http://localhost:3000/users/${result.username}/following`
+        });
+    })
+    .catch(err => {
+        console.log("Error occured in getFollowing()");
+        console.log(err);
+        res.status(500).json({
+            message: "Internal server error",
+            error: err
+        });
+    });
 }
 
 const getFollowers = async (req, res) => {
-
+    const uname = req.username;
+    User.findOne({ username: `${uname}` })
+    .select('_id username followers')
+    .exec()
+    .then(result => {
+        console.log(result);
+        res.status(200).json({
+            message: `${uname}'s followers list`,
+            _id: result._id,
+            username: result.username,
+            followers: {
+                num_followers: result.followers.length,
+                follower_list: result.followers
+            },
+            self: `http://localhost:3000/users/${result.username}/followers`
+        });
+    })
+    .catch(err => {
+        console.log("Error occured in getFollowing()");
+        console.log(err);
+        res.status(500).json({
+            message: "Internal server error",
+            error: err
+        });
+    });
 }
 
 module.exports = {

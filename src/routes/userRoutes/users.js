@@ -13,7 +13,6 @@ router.use('/:username/followers', (req, res, next) =>{   //replace f'n with con
 
 router.use('/:username/following', function(req, res, next) {   //replace f'n with controller f'n
     req.username = req.params.username;
-    req.opCode = req.body.opCode;
     next();
 }, followingRoute);
 
