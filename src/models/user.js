@@ -56,9 +56,6 @@ const userSchema = mongoose.Schema({
             type: String,
             required: true
         },
-        self:{
-            type: String
-        },
         followed_at: {
             type: Date,
             default: new Date()
@@ -74,9 +71,6 @@ const userSchema = mongoose.Schema({
         username: {
             type: String,
             required: true
-        },
-        self:{
-            type: String
         },
         followed_at: {
             type: Date,

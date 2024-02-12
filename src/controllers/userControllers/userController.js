@@ -9,7 +9,7 @@ const { ConnectionPoolClosedEvent } = require("mongodb");
 
 const getAllUsers = (req, res, next) => {
     User.find()
-    .select('_id first_name last_name username school email role')
+    .select('_id username first_name last_name email phone_number school role following followers')
     .exec()
     .then(docs => {
         const response = {
@@ -17,15 +17,24 @@ const getAllUsers = (req, res, next) => {
             users: docs.map(doc => {
                 return {
                     _id: doc._id,
+                    username: doc.username,
                     first_name: doc.first_name,
                     last_name: doc.last_name,
-                    username: doc.username,
-                    school: doc.school,
                     email: doc.email,
+                    phone_number: doc.phone_number,
+                    school: doc.school,
                     role: doc.role,
+                    following: {
+                        num_followed: doc.following.length,
+                        self: `http://localhost:3000/users/${doc.username}/following`
+                    },
+                    followers: {
+                        num_followers: doc.followers.length,
+                        self: `http://localhost:3000/users/${doc.username}/followers`
+                    },
                     request: {
                         type: 'GET',
-                        url: 'http://localhost:3000/users/' + doc._id
+                        url: 'http://localhost:3000/users/' + doc.username
                     }
                 }
             })
@@ -48,11 +57,26 @@ const getUser = (req, res, next) => {
         console.log("Retrieved from database", doc);
         if (doc) {  //If the doc (user) exists
             res.status(200).json({
-                user: doc,
+                _id: doc._id,
+                username: doc.username,
+                first_name: doc.first_name,
+                last_name: doc.last_name,
+                email: doc.email,
+                phone_number: doc.phone_number,
+                school: doc.school,
+                role: doc.role,
+                following: {
+                    num_followed: doc.following.length,
+                    self: `http://localhost:3000/users/${doc.username}/following`
+                },
+                followers: {
+                    num_followers: doc.followers.length,
+                    self: `http://localhost:3000/users/${doc.username}/followers`
+                },
                 request: {
                     type: 'GET',
                     description: 'Get specific user',
-                    url: 'http://localhost:3000/users/' + username
+                    url: 'http://localhost:3000/users/' + doc.username
                 }
             });
         } else {
@@ -104,11 +128,34 @@ const updateUserInfo = (req, res, next) => {
     )
     .exec()
     .then(result => {
-        console.log(`User ${username} updated successfully`);
-        console.log("Result: " + result);
-        res.status(201).json({
-            returnedResult: result
-        });
+        
+        if(result){
+            console.log(`User ${username} updated successfully`);
+            console.log("Result: " + result);
+            res.status(201).json({
+                _id: result._id,
+                username: result.username,
+                first_name: result.first_name,
+                last_name: result.last_name,
+                email: result.email,
+                phone_number: result.phone_number,
+                school: result.school,
+                role: result.role,
+                following: {
+                    num_followed: result.following.length,
+                    self: `http://localhost:3000/users/${result.username}/following`
+                },
+                followers: {
+                    num_followers: result.followers.length,
+                    self: `http://localhost:3000/users/${result.username}/followers`
+                }
+            });
+        }else{
+            console.log(`${username} not found`);
+            res.status(404).json({
+                message: `${username} not found`
+            });
+        }
     })
     .catch(err => {
         console.log(err);

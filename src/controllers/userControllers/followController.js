@@ -166,17 +166,24 @@ const getFollowing = async (req, res) => {
     .select('_id username following')
     .exec()
     .then(result => {
-        console.log(result);
-        res.status(200).json({
+
+        const response = {
             message: `${uname}'s following list`,
             _id: result._id,
             username: result.username,
             following: {
                 num_users_followed: result.following.length,
-                following_list: result.following
-            },
-            self: `http://localhost:3000/users/${result.username}/following`
-        });
+                following_list: result.following.map(relation => {
+                    return {
+                        _id: relation.userId,
+                        username: relation.username,
+                        followed_at: relation.followed_at,
+                        self: `http://localhost:3000/users/${relation.username}`
+                    }
+                })
+            }
+        }
+        res.status(200).json(response);
     })
     .catch(err => {
         console.log("Error occured in getFollowing()");
@@ -194,17 +201,23 @@ const getFollowers = async (req, res) => {
     .select('_id username followers')
     .exec()
     .then(result => {
-        console.log(result);
-        res.status(200).json({
+        const response = {
             message: `${uname}'s followers list`,
             _id: result._id,
             username: result.username,
             followers: {
                 num_followers: result.followers.length,
-                follower_list: result.followers
-            },
-            self: `http://localhost:3000/users/${result.username}/followers`
-        });
+                followers_list: result.followers.map(relation => {
+                    return {
+                        _id: relation.userId,
+                        username: relation.username,
+                        followed_at: relation.followed_at,
+                        self: `http://localhost:3000/users/${relation.username}`
+                    }
+                })
+            }
+        }
+        res.status(200).json(response);
     })
     .catch(err => {
         console.log("Error occured in getFollowing()");
